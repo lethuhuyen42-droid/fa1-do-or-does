@@ -1,0 +1,492 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Do or Does Quest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+/* Layout: one chunky game card on a sunny sky, with a rolling green hill at the bottom. Single bright look by choice. */
+:root {
+  --sky: #cdefff;
+  --sky-2: #fff6d6;
+  --ink: #1d2a5b;
+  --sun: #ffc61a;
+  --sun-deep: #ff9d00;
+  --coral: #ff5d7a;
+  --mint: #25c98a;
+  --grape: #7a4dff;
+  --white: #ffffff;
+  --soft: #f1f6ff;
+  --hill: #8be0a8;
+  --font-display: "Fredoka", "Trebuchet MS", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--sky) 0%, var(--sky-2) 100%);
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  left: -20%;
+  right: -20%;
+  bottom: -18vh;
+  height: 34vh;
+  background: var(--hill);
+  border-radius: 50% 50% 0 0;
+}
+.wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.1; text-wrap: balance; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 4px solid var(--grape); outline-offset: 3px; }
+
+.card {
+  background: var(--white);
+  border: 4px solid var(--ink);
+  border-radius: 28px;
+  box-shadow: 0 8px 0 var(--ink);
+  padding: 22px;
+  min-width: 0;
+}
+
+/* Buttons */
+.btn {
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  background: var(--white);
+  box-shadow: 0 5px 0 var(--ink);
+  padding: 12px 18px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  transition: transform .08s, box-shadow .08s, background .15s;
+}
+.btn:hover:not(:disabled) { background: var(--soft); }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn.primary { background: var(--sun); }
+.btn.primary:hover:not(:disabled) { background: #ffd54d; }
+.btn.big { font-size: 1.5rem; padding: 14px 26px; }
+.btn.ok { background: var(--mint); color: #05331f; animation: pop .35s; }
+.btn.bad { background: var(--coral); color: #fff; animation: shake .4s; opacity: .85; }
+.btn:disabled { cursor: default; }
+.btn.bad:disabled { box-shadow: 0 2px 0 var(--ink); transform: translateY(3px); }
+
+/* Start screen */
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+.hero h1 { font-size: clamp(2.2rem, 9vw, 3.2rem); font-weight: 700; }
+.hero h1 .do { color: var(--coral); }
+.hero h1 .does { color: var(--grape); }
+.hero p { margin: 0; max-width: 34ch; }
+.name-row { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 340px; text-align: left; }
+.name-row label { font-family: var(--font-display); font-size: 1.1rem; }
+.name-row input {
+  font: inherit; font-weight: 800; font-size: 1.2rem;
+  border: 3px solid var(--ink); border-radius: 16px; padding: 12px 14px;
+  background: var(--soft); color: var(--ink);
+}
+.tip {
+  background: var(--soft);
+  border: 3px dashed var(--ink);
+  border-radius: 20px;
+  padding: 14px 16px;
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+.tip h3 { font-size: 1.15rem; }
+.tip-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.tag {
+  font-family: var(--font-display); font-weight: 600;
+  border-radius: 12px; padding: 3px 12px; color: #fff; border: 3px solid var(--ink);
+}
+.tag.do { background: var(--coral); }
+.tag.does { background: var(--grape); }
+
+/* Play screen */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 3px solid var(--ink); background: var(--white);
+}
+.dot.done { background: var(--mint); }
+.dot.now { background: var(--sun); transform: scale(1.2); }
+.chips { display: flex; gap: 8px; align-items: center; }
+.chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--white); border: 3px solid var(--ink); border-radius: 999px;
+  padding: 4px 12px; font-family: var(--font-display); font-weight: 600; font-size: 1.1rem;
+}
+.chip svg { width: 22px; height: 22px; }
+.icon-btn { padding: 4px 10px; border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font-size: 1rem; background: var(--white); border: 3px solid var(--ink); font-family: var(--font-display); font-weight: 600; }
+.icon-btn[aria-pressed="true"] { background: var(--soft); text-decoration: line-through; }
+
+.buddy { display: flex; align-items: flex-end; gap: 10px; }
+.buddy svg { width: 92px; height: 92px; flex: none; }
+.buddy.bounce svg { animation: bounce .6s; }
+.bubble {
+  position: relative;
+  background: var(--white); border: 3px solid var(--ink); border-radius: 20px;
+  padding: 12px 16px; font-weight: 800; flex: 1; min-width: 0;
+}
+.bubble::before {
+  content: ""; position: absolute; left: -12px; bottom: 22px;
+  width: 18px; height: 18px; background: var(--white);
+  border-left: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
+  transform: rotate(45deg);
+}
+
+.qnum { font-family: var(--font-display); font-weight: 600; color: var(--grape); font-size: 1.05rem; text-transform: uppercase; letter-spacing: .08em; }
+.sentence {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  line-height: 1.45; margin: 8px 0 4px; overflow-wrap: anywhere;
+}
+.blank {
+  display: inline-block; min-width: 3.2ch; text-align: center;
+  border-bottom: 5px solid var(--ink); color: var(--grape); padding: 0 6px; margin-right: 4px;
+}
+.blank.filled { border-bottom-color: var(--mint); color: var(--ink); animation: pop .35s; }
+.step { margin-top: 14px; display: grid; gap: 10px; }
+.step-label {
+  display: inline-flex; align-self: start; gap: 8px; align-items: center;
+  font-family: var(--font-display); font-weight: 600; font-size: 1.05rem;
+}
+.step-label b {
+  display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--sun); border: 3px solid var(--ink);
+}
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.answer-line { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.4rem, 5.5vw, 1.9rem); }
+.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.next-row { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+/* End screen */
+.end { text-align: center; display: grid; gap: 14px; justify-items: center; }
+.end h2 { font-size: clamp(2rem, 8vw, 2.8rem); }
+.big-score { font-family: var(--font-display); font-weight: 700; font-size: 3rem; line-height: 1; }
+.big-score small { font-size: 1.4rem; color: var(--grape); }
+.stars { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+.stars svg { width: 34px; height: 34px; }
+.review { width: 100%; text-align: left; display: grid; gap: 8px; }
+.review h3 { font-size: 1.2rem; }
+.review ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.review li { background: var(--soft); border: 3px solid var(--ink); border-radius: 16px; padding: 10px 14px; overflow-wrap: anywhere; }
+.review li strong { color: var(--mint); filter: brightness(.7); }
+.perfect { background: var(--soft); border: 3px dashed var(--ink); border-radius: 16px; padding: 12px 16px; width: 100%; }
+
+/* Confetti */
+.confetti { position: fixed; z-index: 50; width: 12px; height: 12px; border-radius: 3px; pointer-events: none; animation: fly .9s ease-out forwards; }
+
+@keyframes pop { 0% { transform: scale(.85); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+@keyframes bounce { 0%,100% { transform: translateY(0); } 35% { transform: translateY(-14px) rotate(-4deg); } 70% { transform: translateY(0) rotate(3deg); } }
+@keyframes fly { 0% { transform: translate(0,0) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+@media (max-width: 420px) {
+  .card { padding: 16px; }
+  .buddy svg { width: 72px; height: 72px; }
+  .dot { width: 18px; height: 18px; }
+}
+</style>
+
+<main class="wrap">
+
+  <!-- START -->
+  <section id="start" class="card hero" aria-labelledby="title">
+    <svg class="mascot-svg" viewBox="0 0 120 120" width="130" height="130" aria-hidden="true">
+      <g stroke="#ff9d00" stroke-width="7" stroke-linecap="round">
+        <line x1="60" y1="6" x2="60" y2="18"/><line x1="60" y1="6" x2="60" y2="18" transform="rotate(45 60 60)"/>
+        <line x1="60" y1="6" x2="60" y2="18" transform="rotate(90 60 60)"/><line x1="60" y1="6" x2="60" y2="18" transform="rotate(135 60 60)"/>
+        <line x1="60" y1="6" x2="60" y2="18" transform="rotate(180 60 60)"/><line x1="60" y1="6" x2="60" y2="18" transform="rotate(225 60 60)"/>
+        <line x1="60" y1="6" x2="60" y2="18" transform="rotate(270 60 60)"/><line x1="60" y1="6" x2="60" y2="18" transform="rotate(315 60 60)"/>
+      </g>
+      <circle cx="60" cy="60" r="36" fill="#ffc61a" stroke="#1d2a5b" stroke-width="4"/>
+      <circle cx="47" cy="55" r="4.5" fill="#1d2a5b"/><circle cx="73" cy="55" r="4.5" fill="#1d2a5b"/>
+      <circle cx="40" cy="67" r="5" fill="#ff5d7a" opacity=".55"/><circle cx="80" cy="67" r="5" fill="#ff5d7a" opacity=".55"/>
+      <path d="M46 66 Q60 82 74 66" fill="none" stroke="#1d2a5b" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+    <h1 id="title"><span class="do">Do</span> or <span class="does">Does</span> Quest</h1>
+    <p>Hi! I'm Sunny. Help me finish 9 questions and win lots of stars!</p>
+    <div class="name-row">
+      <label for="name">What's your name?</label>
+      <input id="name" type="text" maxlength="20" autocomplete="off" placeholder="Type your name here">
+    </div>
+    <div class="tip">
+      <h3>Sunny's Tip</h3>
+      <div class="tip-row"><span class="tag do">DO</span> <span>I, you, we, they</span></div>
+      <div class="tip-row"><span class="tag does">DOES</span> <span>he, she, it</span></div>
+      <div>Yes, ___ do / does. &nbsp; No, ___ don't / doesn't.</div>
+    </div>
+    <button id="startBtn" class="btn primary big" type="button">Let's go!</button>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" hidden>
+    <div class="topbar">
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <div class="chips">
+        <div class="chip" aria-label="Stars won"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#ffc61a" stroke="#1d2a5b" stroke-width="2" stroke-linejoin="round"/></svg><span id="scoreNum">0</span></div>
+        <button id="muteBtn" class="icon-btn" type="button" aria-pressed="false">Sound</button>
+      </div>
+    </div>
+
+    <div class="buddy" id="buddy" style="margin-top:14px">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <g stroke="#ff9d00" stroke-width="7" stroke-linecap="round">
+          <line x1="60" y1="6" x2="60" y2="18"/><line x1="60" y1="6" x2="60" y2="18" transform="rotate(45 60 60)"/>
+          <line x1="60" y1="6" x2="60" y2="18" transform="rotate(90 60 60)"/><line x1="60" y1="6" x2="60" y2="18" transform="rotate(135 60 60)"/>
+          <line x1="60" y1="6" x2="60" y2="18" transform="rotate(180 60 60)"/><line x1="60" y1="6" x2="60" y2="18" transform="rotate(225 60 60)"/>
+          <line x1="60" y1="6" x2="60" y2="18" transform="rotate(270 60 60)"/><line x1="60" y1="6" x2="60" y2="18" transform="rotate(315 60 60)"/>
+        </g>
+        <circle cx="60" cy="60" r="36" fill="#ffc61a" stroke="#1d2a5b" stroke-width="4"/>
+        <circle cx="47" cy="55" r="4.5" fill="#1d2a5b"/><circle cx="73" cy="55" r="4.5" fill="#1d2a5b"/>
+        <circle cx="40" cy="67" r="5" fill="#ff5d7a" opacity=".55"/><circle cx="80" cy="67" r="5" fill="#ff5d7a" opacity=".55"/>
+        <path id="mouth" d="M46 66 Q60 82 74 66" fill="none" stroke="#1d2a5b" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <div class="bubble" id="bubble" role="status" aria-live="polite">Let's start!</div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="qnum" id="qnum">Question 1 of 9</div>
+      <div class="sentence" id="sentence"></div>
+
+      <div class="step" id="step1">
+        <div class="step-label"><b>1</b> Pick the helper word</div>
+        <div class="pair">
+          <button class="btn big" type="button" data-aux="Do">Do</button>
+          <button class="btn big" type="button" data-aux="Does">Does</button>
+        </div>
+      </div>
+
+      <div class="step" id="step2" hidden>
+        <div class="step-label"><b>2</b> Finish the short answer</div>
+        <div class="answer-line" id="answerLine"></div>
+        <div class="options" id="options"></div>
+      </div>
+
+      <div class="next-row" id="nextRow" hidden>
+        <button class="btn primary big" id="nextBtn" type="button">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section id="end" class="card end" hidden aria-live="polite">
+    <h2 id="endTitle">Great job!</h2>
+    <div class="big-score"><span id="finalScore">0</span><small> / 9</small></div>
+    <div class="stars" id="finalStars" aria-hidden="true"></div>
+    <p id="endMsg" style="margin:0"></p>
+    <div class="review" id="review"></div>
+    <button id="againBtn" class="btn primary big" type="button">Play again</button>
+  </section>
+
+</main>
+
+<script>
+const Q = [
+  { s: "she watch DVDs?", aux: "Does", yn: "Yes", ans: "she does", opts: ["she does", "she doesn't", "she do", "he does"], hint: "'She' goes with DOES." },
+  { s: "you relax on Sundays?", aux: "Do", yn: "Yes", ans: "I do", opts: ["I do", "I don't", "I does", "you do"], hint: "'You' goes with DO." },
+  { s: "Paul play basketball?", aux: "Does", yn: "No", ans: "he doesn't", opts: ["he doesn't", "he does", "he don't", "she doesn't"], hint: "Paul is one boy: he. 'He' goes with DOES." },
+  { s: "your parents drive a big car?", aux: "Do", yn: "No", ans: "they don't", opts: ["they don't", "they do", "they doesn't", "we don't"], hint: "Your parents = they. 'They' goes with DO." },
+  { s: "Brian and George play the guitar?", aux: "Do", yn: "Yes", ans: "they do", opts: ["they do", "they don't", "they does", "he does"], hint: "Brian and George = they. 'They' goes with DO." },
+  { s: "it rain in Egypt?", aux: "Does", yn: "Yes", ans: "it does", opts: ["it does", "it doesn't", "it do", "they do"], hint: "'It' goes with DOES." },
+  { s: "you drink coffee?", aux: "Do", yn: "No", ans: "I don't", opts: ["I don't", "I do", "I doesn't", "you don't"], hint: "'You' goes with DO." },
+  { s: "Jim's sister study history?", aux: "Does", yn: "No", ans: "she doesn't", opts: ["she doesn't", "she does", "she don't", "he doesn't"], hint: "Jim's sister = she. 'She' goes with DOES." },
+  { s: "you and Kim like the picture?", aux: "Do", yn: "Yes", ans: "we do", opts: ["we do", "we don't", "we does", "they do"], hint: "You and Kim = we. 'We' goes with DO." }
+];
+
+const GOOD = ["Yes! Super!", "You got it!", "Awesome!", "Wow, great job!", "Brilliant!", "That's right!"];
+const OOPS = ["Oops! Try again.", "Almost! Try one more.", "Not this one. You can do it!"];
+
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+const STAR = (on) => '<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="' + (on ? '#ffc61a' : '#ffffff') + '" stroke="#1d2a5b" stroke-width="2" stroke-linejoin="round"/></svg>';
+
+let idx = 0, score = 0, name = "", missed = [], qMissed = false, muted = false, audio = null;
+
+/* Sound */
+function tone(freqs, dur) {
+  if (muted) return;
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const t = audio.currentTime;
+    freqs.forEach((f, i) => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = "triangle"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t + i * dur);
+      g.gain.exponentialRampToValueAtTime(0.15, t + i * dur + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * dur + dur);
+      o.connect(g); g.connect(audio.destination);
+      o.start(t + i * dur); o.stop(t + i * dur + dur + 0.02);
+    });
+  } catch (e) {}
+}
+const sfxGood = () => tone([523, 659, 784], 0.1);
+const sfxBad = () => tone([300, 240], 0.14);
+const sfxWin = () => tone([523, 659, 784, 1047], 0.13);
+
+/* Sunny */
+const MOUTH = { happy: "M46 66 Q60 82 74 66", cheer: "M44 64 Q60 92 76 64 Z", oops: "M48 75 Q60 65 72 75" };
+function say(text, mood) {
+  $("bubble").textContent = text;
+  const m = $("mouth");
+  m.setAttribute("d", MOUTH[mood] || MOUTH.happy);
+  m.setAttribute("fill", mood === "cheer" ? "#ff5d7a" : "none");
+  const b = $("buddy");
+  b.classList.remove("bounce"); void b.offsetWidth; b.classList.add("bounce");
+}
+
+/* Confetti */
+function burst(el) {
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const r = el.getBoundingClientRect();
+  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  const colors = ["#ffc61a", "#ff5d7a", "#25c98a", "#7a4dff", "#3db8ff"];
+  for (let i = 0; i < 22; i++) {
+    const c = document.createElement("span");
+    c.className = "confetti";
+    const a = Math.random() * Math.PI * 2, d = 50 + Math.random() * 90;
+    c.style.left = x + "px"; c.style.top = y + "px";
+    c.style.background = colors[i % colors.length];
+    c.style.setProperty("--dx", Math.cos(a) * d + "px");
+    c.style.setProperty("--dy", Math.sin(a) * d - 20 + "px");
+    c.style.setProperty("--rot", (Math.random() * 540 - 270) + "deg");
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 1000);
+  }
+}
+
+/* Screens */
+function show(id) { ["start", "play", "end"].forEach(s => { $(s).hidden = s !== id; }); window.scrollTo(0, 0); }
+
+function drawDots() {
+  $("dots").innerHTML = Q.map((_, i) => '<span class="dot' + (i < idx ? " done" : i === idx ? " now" : "") + '"></span>').join("");
+}
+
+function startGame() {
+  name = $("name").value.trim();
+  idx = 0; score = 0; missed = [];
+  $("scoreNum").textContent = "0";
+  show("play");
+  renderQ();
+  say(name ? "Hi, " + name + "! Let's play!" : "Let's play!", "cheer");
+}
+
+function renderQ() {
+  const q = Q[idx];
+  qMissed = false;
+  drawDots();
+  $("qnum").textContent = "Question " + (idx + 1) + " of " + Q.length;
+  $("sentence").innerHTML = '<span class="blank" id="blank">?</span><span>' + q.s + '</span>';
+  $("step1").hidden = false;
+  $("step2").hidden = true;
+  $("nextRow").hidden = true;
+  document.querySelectorAll("#step1 .btn").forEach(b => { b.disabled = false; b.className = "btn big"; });
+  $("nextBtn").textContent = idx === Q.length - 1 ? "See my stars!" : "Next";
+  if (idx > 0) say("Next one. Pick Do or Does!", "happy");
+}
+
+function pickAux(btn) {
+  const q = Q[idx];
+  if (btn.dataset.aux === q.aux) {
+    sfxGood();
+    btn.classList.add("ok");
+    document.querySelectorAll("#step1 .btn").forEach(b => { b.disabled = true; });
+    const bl = $("blank"); bl.textContent = q.aux; bl.classList.add("filled");
+    burst(btn);
+    say(rand(GOOD) + " Now finish the answer.", "cheer");
+    $("answerLine").innerHTML = q.yn + ', <span class="blank" id="blank2">?</span>.';
+    $("options").innerHTML = "";
+    shuffle(q.opts).forEach(o => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "btn"; b.textContent = o; b.dataset.val = o;
+      $("options").appendChild(b);
+    });
+    $("step2").hidden = false;
+  } else {
+    sfxBad();
+    qMissed = true;
+    btn.classList.add("bad"); btn.disabled = true;
+    say(rand(OOPS) + " Tip: " + q.hint, "oops");
+  }
+}
+
+function pickAnswer(btn) {
+  const q = Q[idx];
+  if (btn.dataset.val === q.ans) {
+    sfxGood();
+    btn.classList.add("ok");
+    document.querySelectorAll("#options .btn").forEach(b => { b.disabled = true; });
+    const b2 = $("blank2"); b2.textContent = q.ans; b2.classList.add("filled");
+    burst(btn);
+    if (!qMissed) { score++; $("scoreNum").textContent = score; say(rand(GOOD) + " You won a star!", "cheer"); }
+    else { missed.push(idx); say("You finished it! Look at it again later.", "happy"); }
+    $("nextRow").hidden = false;
+    $("nextBtn").focus({ preventScroll: true });
+  } else {
+    sfxBad();
+    qMissed = true;
+    btn.classList.add("bad"); btn.disabled = true;
+    const rule = q.yn === "Yes" ? "The answer is Yes, so don't use n't." : "The answer is No, so use don't or doesn't.";
+    say(rand(OOPS) + " " + rule, "oops");
+  }
+}
+
+function next() {
+  idx++;
+  if (idx >= Q.length) finish(); else renderQ();
+}
+
+function finish() {
+  show("end");
+  const who = name || "friend";
+  $("finalScore").textContent = score;
+  $("finalStars").innerHTML = Q.map((_, i) => STAR(i < score)).join("");
+  let title, msg;
+  if (score === 9) { title = "Super star, " + who + "!"; msg = "A perfect score! You are a Do and Does champion!"; }
+  else if (score >= 7) { title = "Amazing, " + who + "!"; msg = "You know Do and Does very well."; }
+  else if (score >= 5) { title = "Great try, " + who + "!"; msg = "You are getting better. Play again to win more stars!"; }
+  else { title = "Good start, " + who + "!"; msg = "Read Sunny's tip and play again. You can do it!"; }
+  $("endTitle").textContent = title;
+  $("endMsg").textContent = msg;
+  const rv = $("review");
+  if (missed.length === 0) {
+    rv.innerHTML = '<div class="perfect">No mistakes today. Wow!</div>';
+  } else {
+    rv.innerHTML = "<h3>Let's look again</h3><ul>" + missed.map(i => {
+      const q = Q[i];
+      return "<li>" + q.aux + " " + q.s + " " + q.yn + ", <strong>" + q.ans + ".</strong></li>";
+    }).join("") + "</ul>";
+  }
+  sfxWin();
+  burst($("finalStars"));
+}
+
+/* Events */
+$("startBtn").addEventListener("click", startGame);
+$("name").addEventListener("keydown", e => { if (e.key === "Enter") startGame(); });
+$("step1").addEventListener("click", e => { const b = e.target.closest("button[data-aux]"); if (b && !b.disabled) pickAux(b); });
+$("options").addEventListener("click", e => { const b = e.target.closest("button[data-val]"); if (b && !b.disabled) pickAnswer(b); });
+$("nextBtn").addEventListener("click", next);
+$("againBtn").addEventListener("click", startGame);
+$("muteBtn").addEventListener("click", () => {
+  muted = !muted;
+  $("muteBtn").setAttribute("aria-pressed", String(muted));
+});
+</script>
+
+</body></html>
